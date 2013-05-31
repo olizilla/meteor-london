@@ -28,11 +28,11 @@ Meteor.subscribe('importantThings', function(){
 });
 
 Template.upcomingMeetup.events = function(){
-	return Events.find({time: { $gt: Date.now() }}, { sort: [['time', 'asc']]}).fetch();
+	return Events.find({time: { $gte: Date.now() -  (86400000 * 2) }}, { sort: [['time', 'asc']]}).fetch();
 };
 
 Template.previousMeetup.events = function(){
-	return Events.find({time: { $lt: Date.now() }}, { sort: [['time', 'desc']]}).fetch();
+	return Events.find({status: 'past'}, { sort: [['time', 'desc']]}).fetch();
 };
 
 Template.upcomingMeetup.fromNowFormat = function(ms){
