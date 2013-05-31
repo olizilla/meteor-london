@@ -28,11 +28,7 @@ Meteor.subscribe('importantThings', function(){
 });
 
 Template.upcomingMeetup.events = function(){
-	return Events.find({time: { $gte: Date.now() -  (86400000 * 2) }}, { sort: [['time', 'asc']]}).fetch();
-};
-
-Template.previousMeetup.events = function(){
-	return Events.find({status: 'past'}, { sort: [['time', 'desc']]}).fetch();
+	return Events.find({status: {$in: ['upcoming', 'proposed']}}, { sort: [['time', 'asc']]}).fetch();
 };
 
 Template.upcomingMeetup.fromNowFormat = function(ms){
@@ -52,6 +48,10 @@ Template.upcomingMeetup.dateTimeFormat = function(ms){
 };
 
 Template.upcomingMeetup.createMap = function(venue) {
+
+	if (!venue){
+		return;
+	}
 
 	var mapId = "venue-" + venue.id;
 	
@@ -97,6 +97,10 @@ Template.upcomingMeetup.createMap = function(venue) {
 	return '<div id="' + mapId + '" class="map"></div>';
 };
 
+Template.previousMeetup.events = function(){
+	return Events.find({status: "past"}, { sort: [['time', 'desc']]}).fetch();
+};
+
 Template.previousMeetup.dateFormat = function(ms){
 	return moment(ms).format('MMMM Do YYYY');
 };
@@ -117,8 +121,32 @@ Template.sponsors.sponsors = function(){
 	return Groups.findOne() ? Groups.findOne().sponsors : null;
 };
 
-Template.upcomingMeetup.rendered = onLoad;
+Template.lastMeetup.events = function(){
+	return Events.find({status: "past"}, { sort: [['time', 'desc']], limit:1}).fetch();
+};
 
+Template.lastMeetup.fromNowFormat = function(ms){
+		return moment(ms).fromNow();
+};
+
+Template.lastMeetup.calandarFormat = function(ms){
+	return moment(ms).calendar();
+};
+
+Template.lastMeetup.isoFormat = function(ms){
+	return moment(ms).format();
+};
+
+Template.lastMeetup.dateFormat = function(ms){
+	return moment(ms).format('MMMM Do YYYY');
+};
+
+Template.lastMeetup.toFixed = function(number){
+	return parseFloat(number).toFixed(1); // rounded to 1 decimal place.
+};
+
+Template.upcomingMeetup.rendered = onLoad;
+Template.lastMeetup.rendered = onLoad;
 Template.previousMeetup.rendered = onLoad;
 Template.photos.rendered = onLoad;
 Template.sponsors.rendered = onLoad;
@@ -126,6 +154,8 @@ Template.members.rendered = function(){
 	$(this.findAll('.loading')).removeClass('loading');
 	membersGraph({width: 120, height: 50});
 };
+
+
 
 function onLoad(){
 	$(this.findAll('.loading')).removeClass('loading');

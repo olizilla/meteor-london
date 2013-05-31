@@ -12,6 +12,9 @@
 	<section id="upcoming-events">
 		{{> upcomingMeetup }}
 	</section>
+	<section id="last-event">
+		{{> lastMeetup }}
+	</section>
 	<section id="sponsors">
 		{{> sponsors }}
 	</section>
@@ -40,6 +43,20 @@
 			<span>- {{yes_rsvp_count}} attendee{{#if yes_rsvp_count}}s{{/if}}</span>
 		</p>
 		{{{createMap venue}}}
+		<div class="description">{{{description}}}</div>
+		<div class="countdown" title="{{calandarFormat time}}">{{fromNowFormat time}}</div>
+		<a class="meetup" href={{event_url}}></a>
+	</div>
+	{{/each}}
+</template>
+
+<template name="lastMeetup">
+	{{#each events}}
+	<div class="block loading">
+		<h2>{{name}}</h2>
+		<p>
+			{{dateFormat time}} - {{yes_rsvp_count}} attended {{#if rating.count}}-  {{toFixed rating.average}} stars{{/if}}
+		</p>
 		<div class="description">{{{description}}}</div>
 		<div class="countdown" title="{{calandarFormat time}}">{{fromNowFormat time}}</div>
 		<a class="meetup" href={{event_url}}></a>

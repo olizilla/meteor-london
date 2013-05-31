@@ -152,6 +152,9 @@ a.name {
     background: gold;
     box-shadow: 2px 2px 3px rgba(0,0,0,0.1);
 }
+#last-event .countdown{
+    background: #ddd;
+}
 .photo{
     background: #eee;
     display: inline-block;

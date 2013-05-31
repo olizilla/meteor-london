@@ -1,12 +1,12 @@
 
 // Client subscribes to this first. 
 Meteor.publish("importantThings", function(){
-    return [Groups.find({}), Events.find({time: { $gte: Date.now() -  (86400000 * 2) }})]; // 2 days grace...
+    return [Groups.find(), Events.find()];
 });
 
 // Once importantThings are sync'd then subscribe to the rest
 Meteor.publish("things", function(){
-    return [Events.find({}), Photos.find({}), Members.find({})];
+    return [Photos.find(), Members.find()];
 });
 
 // Encapsulate the meetup api gubbins.
@@ -99,22 +99,11 @@ function sync(method, opts, collection, idField){
 }
 
 // get /groups data from api.meetup.com; add or update the Groups collection.
-function syncGroups(){
+function syncAllTheThings(){
     sync('groups', { fields: 'sponsors,short_link', omit:'topics' }, Groups);
-}
-
-// get /events data from api.meetup.com; add or update the Events collection.
-function syncEvents(){
-    sync('events', { status: 'past,upcoming,cancelled' }, Events);
-}
-
-// get /photos data from api.meetup.com; add or update the Photos collection.
-function syncPhotos(){
+    sync('events', { status: 'past,upcoming,cancelled,proposed' }, Events);
     sync('photos', {}, Photos, 'photo_id');
-}
-
-function syncMembers(){
-    sync('members', { omit: 'topics' }, Members); // TODO: handle paging...
+    sync('members', { omit: 'topics' }, Members);
 }
 
 // It begins. Get meetup data and push it into local collections. Rinse. Repeat.
@@ -133,11 +122,9 @@ Meteor.startup(function(){
 
     console.log('Contacting api.meetup.com in 60s...\n');    
 
-    Meteor.setInterval(syncGroups, 1000 * 60);
-
-    Meteor.setInterval(syncEvents, 1000 * 60);
-
-    Meteor.setInterval(syncPhotos, 1000 * 60);
+    if (Events.find().count() < 1){
+        syncAllTheThings();    
+    }
     
-    Meteor.setInterval(syncMembers, 1000 * 60);
+    Meteor.setInterval(syncAllTheThings, 1000 * 60);
 });
